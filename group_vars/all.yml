@@ -1,0 +1,7 @@
+
+token: h3lnje.yv43dagqlj77e2ts
+
+master_ip: "10.10.10.11"
+service_cidr: "10.96.0.0/12"
+pod_network_cidr: "10.244.0.0/16"
+

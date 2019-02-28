@@ -1,0 +1,33 @@
+---
+
+- name: Add Kubernetes yum repository
+  when: ansible_os_family == "RedHat"
+  yum_repository:
+    name: kubernetes
+    description: Kubernetes Repository
+    file: kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    enabled: yes
+    gpgcheck: yes
+    repo_gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    exclude: kube*
+
+- name: Install kubernetes packages (RHEL/CentOS)
+  when: ansible_os_family == "RedHat"
+  yum:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    update_cache: yes
+    disable_excludes: kubernetes
+    state: present
+
+- name: Enable and check kubelet service
+  when: ansible_os_family == "RedHat"
+  systemd:
+    name: kubelet
+    daemon_reload: yes
+    state: started
+    enabled: yes

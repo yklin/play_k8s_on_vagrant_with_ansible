@@ -4,7 +4,7 @@
 Vagrant.require_version ">= 2.2.0"
 
 $instance_count = 3
-$vm_cpus = 1
+$vm_cpus = 2
 $vm_memory = 2048
 $subnet = "10.10.10"
 

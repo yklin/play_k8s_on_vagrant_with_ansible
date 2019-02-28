@@ -1,0 +1,22 @@
+---
+
+- name: Check if kubelet.conf exists
+  stat:
+    path: "/etc/kubernetes/kubelet.conf"
+  register: kubelet_conf
+
+# FIXME: remove hard-coding variables
+- name: Join to kubernetes cluster
+  when: not kubelet_conf.stat.exists
+  shell: |
+    kubeadm join --token {{ token }} \
+                 --discovery-token-unsafe-skip-ca-verification \
+                 {{ master_ip }}:6443
+
+- name: Enable and check kubelet service
+  systemd:
+    name: kubelet
+    daemon_reload: yes
+    state: started
+    enabled: yes
+

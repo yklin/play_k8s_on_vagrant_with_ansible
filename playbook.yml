@@ -2,7 +2,16 @@
 
 - hosts: k8s-cluster
   become: true
-  tasks:
-    - debug:
-        msg: "The hostname is {{ ansible_hostname }}"
+  roles:
+    - common
+
+- hosts: masters
+  become: true
+  roles:
+    - kubernetes/master
+
+- hosts: nodes
+  become: true
+  roles:
+    - kubernetes/node
 

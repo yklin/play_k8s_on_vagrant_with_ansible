@@ -1,0 +1,55 @@
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Set selinux policy to permissive
+  selinux:
+    policy: targeted
+    state: permissive
+  when:
+    - ansible_os_family == "RedHat"
+
+- name: Add br_netfilter in /etc/modules-load.d/
+  copy:
+    dest: /etc/modules-load.d/br_netfilter.conf
+    content: br_netfilter
+
+- name: Load the br_netfilter module
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Write bridge-netfilter and ip-forward system variables
+  copy:
+    content: |
+      net.ipv4.ip_forward=1
+      net.bridge.bridge-nf-call-ip6tables=1
+      net.bridge.bridge-nf-call-iptables=1
+    dest: /etc/sysctl.d/k8s.conf
+
+- name: Enable bridge-netfilter and ip-forward system variables
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+  with_items:
+    - name: vm.swappiness
+      value: 0
+    - name: net.ipv4.ip_forward
+      value: 1
+    - name: net.bridge.bridge-nf-call-ip6tables
+      value: 1
+    - name: net.bridge.bridge-nf-call-iptables
+      value: 1
+
+- name: Install docker packages
+  include_tasks: install_docker.yml
+
+- name: Install kubernetes packages
+  include_tasks: install_kubernetes.yml
+

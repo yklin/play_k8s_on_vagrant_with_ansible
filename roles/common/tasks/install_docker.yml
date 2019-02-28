@@ -1,0 +1,26 @@
+---
+
+- name: Add docker yum repository
+  when: ansible_os_family == "RedHat"
+  yum_repository:
+    name: Docker
+    description: Docker Repository
+    file: docker
+    baseurl: https://download.docker.com/linux/centos/7/x86_64/stable
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+
+- name: Install docker engine
+  when: ansible_os_family == "RedHat"
+  yum:
+    name: "docker-ce-{{ docker_version }}"
+    state: present
+
+- name: Enable and check Docker service
+  systemd:
+    name: docker
+    daemon_reload: yes
+    state: started
+    enabled: yes
+
